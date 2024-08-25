@@ -115,49 +115,68 @@
             justify-content: flex-end;
         }
 
+        .chat-message.bot .text {
+            background: #333;
+            color: #f5f5f5;
+            border-radius: 10px 10px 10px 0;
+            position: relative;
+            max-width: 80%;
+            display: inline-block;
+            padding: 8px 12px;
+        }
+
+        .chat-message.user .text {
+            background: #444;
+            border-radius: 10px 10px 0 10px;
+            position: relative;
+            max-width: 80%;
+            display: inline-block;
             padding: 8px 12px;
         }
 
         .chat-message .text {
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             font-size: 14px;
             margin: 0 10px;
         }
 
         .chat-message .time {
             font-size: 10px;
-            color: #999;
+            color: #888;
             margin-top: 2px;
         }
 
         .chat-input {
             padding: 10px;
-            border-top: 1px solid #eee;
+            border-top: 2px solid #333;
             display: flex;
             align-items: center;
+            background: #222;
         }
 
         .chat-input input[type="text"] {
             flex-grow: 1;
             padding: 8px 12px;
             border-radius: 20px;
-            border: 1px solid #ccc;
+            border: 1px solid #444;
+            background: #333;
+            color: #f5f5f5;
             outline: none;
         }
 
-        .chat-input button {
+        .chat-input button, .chat-input input[type="file"] {
             background: none;
             border: none;
-            color: #494745;
-            font-size: 18px;
-            margin-left: 10px;
+            color: #f5f5f5;
+            font-size: 17px;
+            margin-left: 3px;
             cursor: pointer;
             outline: none;
         }
 
         .typing-indicator {
             font-size: 12px;
-            color: #333536;
+            color: #ddd;
             padding: 5px;
             display: none;
         }
@@ -168,7 +187,7 @@
             height: 8px;
             margin: 0 2px;
             border-radius: 50%;
-            background: #313233;
+            background: #333;
             animation: blink 1.4s infinite both;
         }
 
@@ -389,52 +408,6 @@
         }
     });
 
-
-
-
-
-
-
-    let botVoice = 'female'; // default voice
-
-// Function to change voice
-function changeVoice(voiceType) {
-  botVoice = voiceType;
-}
-
-// Function to respond with selected voice
-function botResponse(text) {
-  const utterance = new SpeechSynthesisUtterance(text);
-  
-  // Set voice based on user preference
-  if (botVoice === 'male') {
-    utterance.voice = speechSynthesis.getVoices().find(voice => voice.name.includes('Male Voice Name'));
-  } else {
-    utterance.voice = speechSynthesis.getVoices().find(voice => voice.name.includes('Female Voice Name'));
-  }
-
-  speechSynthesis.speak(utterance);
-}
-
-// Example usage:
-botResponse("Hello, how can I assist you?");
-
-// Listening for user input to change voice
-document.querySelector('#inputField').addEventListener('input', function(event) {
-  if (event.target.value.toLowerCase() === 'male') {
-    changeVoice('male');
-    botResponse("You have selected the male voice.");
-  } else if (event.target.value.toLowerCase() === 'female') {
-    changeVoice('female');
-    botResponse("You have selected the female voice.");
-  }
-});
-
-
-
-
-
-    
     // Handle file input
     fileButton.addEventListener('click', () => {
         fileInput.click();
