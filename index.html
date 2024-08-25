@@ -408,6 +408,52 @@
         }
     });
 
+
+
+
+
+
+
+    let botVoice = 'female'; // default voice
+
+// Function to change voice
+function changeVoice(voiceType) {
+  botVoice = voiceType;
+}
+
+// Function to respond with selected voice
+function botResponse(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  
+  // Set voice based on user preference
+  if (botVoice === 'male') {
+    utterance.voice = speechSynthesis.getVoices().find(voice => voice.name.includes('Male Voice Name'));
+  } else {
+    utterance.voice = speechSynthesis.getVoices().find(voice => voice.name.includes('Female Voice Name'));
+  }
+
+  speechSynthesis.speak(utterance);
+}
+
+// Example usage:
+botResponse("Hello, how can I assist you?");
+
+// Listening for user input to change voice
+document.querySelector('#inputField').addEventListener('input', function(event) {
+  if (event.target.value.toLowerCase() === 'male') {
+    changeVoice('male');
+    botResponse("You have selected the male voice.");
+  } else if (event.target.value.toLowerCase() === 'female') {
+    changeVoice('female');
+    botResponse("You have selected the female voice.");
+  }
+});
+
+
+
+
+
+    
     // Handle file input
     fileButton.addEventListener('click', () => {
         fileInput.click();
