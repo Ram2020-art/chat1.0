@@ -3,106 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Interface</title>
+    <title>Advanced Chat Application</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
+        body, html {
+            font-family: 'Red Hat Display', sans-serif;
+            font-weight: 400;
+            line-height: 1.25em;
+            letter-spacing: 0.025em;
+            color: #e0e0e0;
+            background: #121212;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: white;
-            color: black;
+            padding: 0;
         }
-        .chat-container {
+
+        .chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #444;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
             display: flex;
-            flex-direction: column;
-            height: 100vh;
-            max-width: 600px;
-            margin: auto;
-            border: 1px solid #ccc;
-            background-color: white;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s ease;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/4096/4096380.png');
+            background-size: cover;
+            background-position: center;
         }
+
+        .chat-button:hover {
+            background-color: #666;
+        }
+
+        .chat-popup {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 300px;
+            max-width: 90%;
+            background: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease;
+        }
+
+        .chat-popup.active {
+            transform: scale(1);
+        }
+
+        .chat-header {
+            padding: 10px;
+            background-color: #333;
+            color: #f5f5f5;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .chat-header .bio {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        .chat-header .name {
+            font-size: 12px;
+            color: #bbb;
+        }
+
+        .chat-header .powered-by {
+            font-size: 10px;
+            color: #888;
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+        }
+
         .chat-messages {
-            flex: 1;
+            max-height: 300px;
             overflow-y: auto;
             padding: 10px;
-            border-bottom: 1px solid #ddd;
+            background: #2c2c2c;
         }
+
         .chat-message {
             display: flex;
             margin-bottom: 10px;
+            align-items: flex-end;
         }
-        .chat-message.user {
-            justify-content: flex-end;
-        }
+
         .chat-message.bot {
             justify-content: flex-start;
         }
-        .chat-message .text {
-            background-color: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 60%;
+
+        .chat-message.user {
+            justify-content: flex-end;
         }
+
+        .chat-message.bot .text {
+            background: #333;
+            color: #f5f5f5;
+            border-radius: 10px 10px 10px 0;
+            position: relative;
+            max-width: 80%;
+            display: inline-block;
+            padding: 8px 12px;
+        }
+
         .chat-message.user .text {
-            background-color: #e0e0e0;
+            background: #444;
+            border-radius: 10px 10px 0 10px;
+            position: relative;
+            max-width: 80%;
+            display: inline-block;
+            padding: 8px 12px;
         }
+
+        .chat-message .text {
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
         .chat-message .time {
-            font-size: 0.75em;
+            font-size: 10px;
             color: #888;
-            margin-top: 5px;
+            margin-top: 2px;
         }
-        .chat-input-container {
+
+        .chat-input {
+            padding: 10px;
+            border-top: 2px solid #333;
             display: flex;
             align-items: center;
-            border-top: 1px solid #ddd;
-            background-color: white;
+            background: #222;
         }
-        .chat-input {
-            flex: 1;
-            border: none;
-            padding: 10px;
-            font-size: 1em;
-        }
-        .chat-input:focus {
+
+        .chat-input input[type="text"] {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid #444;
+            background: #333;
+            color: #f5f5f5;
             outline: none;
         }
-        .send-button {
-            background-color: #007bff;
+
+        .chat-input button, .chat-input input[type="file"] {
+            background: none;
             border: none;
-            color: white;
-            padding: 10px 20px;
+            color: #f5f5f5;
+            font-size: 17px;
+            margin-left: 3px;
             cursor: pointer;
-            font-size: 1em;
+            outline: none;
         }
-        .send-button:hover {
-            background-color: #0056b3;
-        }
-        .voice-button {
+
+        .typing-indicator {
+            font-size: 12px;
+            color: #ddd;
+            padding: 5px;
             display: none;
         }
-        .file-button {
-            display: none;
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            border-radius: 50%;
+            background: #333;
+            animation: blink 1.4s infinite both;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .listening {
+            color: #ff0000;
         }
     </style>
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="chat-messages" id="chat-messages"></div>
-    <div class="chat-input-container">
-        <input type="text" class="chat-input" id="user-input" placeholder="Type your message...">
-        <button class="send-button" id="send-button">Send</button>
+<div class="chat-button"></div>
+
+<div class="chat-popup" id="chatPopup">
+    <div class="chat-header">
+        <img src="https://www.rammijar.com.np/images/AGMdpywhTUhH.png" alt="Ram Mijar">
+        <div class="bio">
+            Ram Mijar<br>
+            <div class="powered-by">Powered by Ram Mijar</div>
+        </div>
+        <i class="fas fa-times close-chat" role="button" aria-label="Close chat"></i>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="typing-indicator" id="typingIndicator">
+        <span></span><span></span><span></span>
+    </div>
+    <div class="chat-input">
+        <button id="emojiButton"><i class="fas fa-smile" aria-hidden="true"></i></button>
+        <input type="text" id="userInput" placeholder="Type your message here...">
+        <input type="file" id="fileInput" style="display:none;">
+        <button id="fileButton"><i class="fas fa-paperclip" aria-hidden="true"></i></button>
+        <button id="voiceButton"><i class="fas fa-microphone" aria-hidden="true"></i></button>
     </div>
 </div>
 
 <script>
-    const chatMessages = document.getElementById('chat-messages');
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
-    let voiceRepliesEnabled = false;
+    const chatButton = document.querySelector('.chat-button');
+    const chatPopup = document.getElementById('chatPopup');
+    const closeChat = document.querySelector('.close-chat');
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const fileButton = document.getElementById('fileButton');
+    const fileInput = document.getElementById('fileInput');
+    const voiceButton = document.getElementById('voiceButton');
+    const emojiButton = document.getElementById('emojiButton');
+    const typingIndicator = document.getElementById('typingIndicator');
     let recognizing = false;
     let recognition;
+    let voiceRepliesEnabled = false;
+    let userName = '';
 
-    // Load chat history
+    // Toggle chat popup visibility
+    chatButton.addEventListener('click', () => {
+        chatPopup.classList.toggle('active');
+    });
+
+    // Close chat popup
+    closeChat.addEventListener('click', () => {
+        chatPopup.classList.remove('active');
+    });
+
+    // Load chat history from local storage
     function loadChatHistory() {
         const history = JSON.parse(localStorage.getItem('chatHistory')) || [];
         history.forEach(({ message, sender, time }) => {
@@ -145,34 +308,7 @@
         let response = '';
         const lowerMessage = message.toLowerCase();
 
-        if (lowerMessage.startsWith('download')) {
-            const urlMatch = message.match(/(?:https?:\/\/)?(?:www\.)?(?:facebook\.com|instagram\.com)\/[^\s]+/i);
-            if (urlMatch) {
-                const url = urlMatch[0];
-                response = `Processing download for ${url}`;
-                // Assume a backend service to handle download
-                fetch('/download', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ url })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        addMessage(`Download completed! You can [download here](${data.downloadUrl}).`, 'bot', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                    } else {
-                        addMessage(`Failed to download. Please try again.`, 'bot', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                    }
-                })
-                .catch(() => {
-                    addMessage(`An error occurred while processing your request.`, 'bot', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                });
-            } else {
-                response = 'Please provide a valid Facebook or Instagram video link.';
-            }
-        } else if (lowerMessage.includes('my name is') || lowerMessage.includes('i am')) {
+        if (lowerMessage.includes('my name is') || lowerMessage.includes('i am')) {
             userName = message.replace(/my name is |i am /i, '').trim();
             response = `Hello, ${userName}!`;
         } else if (['hello', 'hi', 'hey'].includes(lowerMessage)) {
@@ -208,37 +344,91 @@
             response = voiceRepliesEnabled ? 'Voice replies enabled!' : 'Voice replies disabled!';
         } else {
             response = "I'm sorry, I didn't understand that. Could you please rephrase?";
-
-            }
-
-    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    addMessage(response, 'bot', time);
-    saveChatHistory(response, 'bot', time);
-
-    if (voiceRepliesEnabled) {
-        if (!('speechSynthesis' in window)) {
-            addMessage('Sorry, your browser does not support speech synthesis.', 'bot', time);
-            return;
         }
 
-        const utterance = new SpeechSynthesisUtterance(response);
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        addMessage(response, 'bot', time);
+        saveChatHistory(response, 'bot', time);
+
+        if (voiceRepliesEnabled) {
+            speak(response);
+        }
+    }
+
+    // Speak the response
+    function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
         window.speechSynthesis.speak(utterance);
     }
-}
 
-// Event listener for the send button
-sendButton.addEventListener('click', sendMessage);
+    // Handle Enter key press in input field
+    userInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
 
-// Event listener for enter key
-userInput.addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        sendMessage();
+    // Initialize voice recognition
+    function initVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window)) {
+            console.log('Speech recognition not supported.');
+            return;
+        }
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            recognizing = true;
+            voiceButton.classList.add('listening');
+        };
+
+        recognition.onend = () => {
+            recognizing = false;
+            voiceButton.classList.remove('listening');
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            userInput.value = transcript;
+            sendMessage();
+        };
     }
-});
 
-// Load chat history on page load
-loadChatHistory();
-    </script>
-</body> 
+    initVoiceRecognition();
+
+    // Handle voice button click
+    voiceButton.addEventListener('click', () => {
+        if (recognizing) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    });
+
+    // Handle file input
+    fileButton.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileContent = e.target.result;
+                addMessage(`File uploaded: ${file.name}`, 'user', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                handleResponse(`You uploaded a file: ${file.name}`);
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    // Load chat history
+    loadChatHistory();
+</script>
+
+</body>
 </html>
