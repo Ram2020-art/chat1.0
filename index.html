@@ -230,7 +230,6 @@
     <div class="chat-input">
         <button id="emojiButton"><i class="fas fa-smile" aria-hidden="true"></i></button>
         <input type="text" id="userInput" placeholder="Type your message here...">
-        <button id="sendButton"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
         <input type="file" id="fileInput" style="display:none;">
         <button id="fileButton"><i class="fas fa-paperclip" aria-hidden="true"></i></button>
         <button id="voiceButton"><i class="fas fa-microphone" aria-hidden="true"></i></button>
@@ -243,7 +242,6 @@
     const closeChat = document.querySelector('.close-chat');
     const chatMessages = document.getElementById('chatMessages');
     const userInput = document.getElementById('userInput');
-    const sendButton = document.getElementById('sendButton');
     const typingIndicator = document.getElementById('typingIndicator');
     const voiceButton = document.getElementById('voiceButton');
     const emojiButton = document.getElementById('emojiButton');
@@ -280,69 +278,107 @@
     }
 
     // Add a message to the chat
-    function addMessage(message, sender, time = new Date().toLocaleTimeString()) {
+    function addMessage(message, sender, time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) {
         const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message', sender);
-
-        const messageText = document.createElement('div');
-        messageText.classList.add('text');
-        messageText.textContent = message;
-
-        const messageTime = document.createElement('div');
-        messageTime.classList.add('time');
-        messageTime.textContent = time;
-
-        messageElement.appendChild(messageText);
-        messageElement.appendChild(messageTime);
+        messageElement.className = `chat-message ${sender}`;
+        messageElement.innerHTML = `
+            <div class="text">${message}<div class="time">${time}</div></div>
+        `;
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        saveChatHistory(message, sender, time);
     }
 
-    // Send a message
+    // Handle bot response
+    function handleResponse(message) {
+        let response = '';
+        const lowerMessage = message.toLowerCase();
+
+        if (lowerMessage.includes('my name is') || lowerMessage.includes('i am')) {
+            userName = message.replace(/my name is |i am /i, '').trim();
+            response = `Hello, ${userName}!`;
+        } else if (['hello', 'hi', 'hey'].includes(lowerMessage)) {
+            response = 'Hello there!';
+        } else if (lowerMessage.includes('how are you')) {
+            response = "I'm just a bot, but I'm doing well! How about you?";
+        } else if (lowerMessage.includes('what is your name') || lowerMessage.includes('who are you') || lowerMessage.includes('who')) {
+            response = "I'm Ram Mijar, your friendly chatbot!";
+        } else if (lowerMessage.includes('what can you do') || lowerMessage.includes('your purpose') || lowerMessage.includes('what do you do')) {
+            response = "I can chat with you, respond to your questions, and help with basic tasks!";
+        } else if (lowerMessage.includes('tell me a joke') || lowerMessage.includes('joke')) {
+            response = "Why don't scientists trust atoms? Because they make up everything!";
+        } else if (lowerMessage.includes('goodbye') || lowerMessage.includes('bye')) {
+            response = "Goodbye! Have a great day!";
+        } else if (lowerMessage.includes('what time is it') || lowerMessage.includes('time')) {
+            response = `The current time is ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`;
+        } else if (lowerMessage.includes('date today') || lowerMessage.includes('date')) {
+            response = `Today's date is ${new Date().toLocaleDateString()}.`;
+        } else if (lowerMessage.includes('what is your favorite color') || lowerMessage.includes('favorite color') || lowerMessage.includes('color')) {
+            response = "I like all colors, but I think blue suits me well!";
+        } else if (lowerMessage.includes('open website') || lowerMessage.includes('website')) {
+            response = "Sure! Please specify the website you'd like to visit.";
+        } else if (lowerMessage.includes('thank you') || lowerMessage.includes('thanks')) {
+            response = "You're welcome! If you need anything else, just ask.";
+        } else if (lowerMessage.includes('who created you') || lowerMessage.includes('creator') || lowerMessage.includes('who made you')) {
+            response = "I was created by Ram Mijar!";
+        } else if (lowerMessage.includes('tell me a fact') || lowerMessage.includes('fact')) {
+            response = "Did you know? Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old!";
+        } else if (lowerMessage.includes('help') || lowerMessage.includes('assist') || lowerMessage.includes('support')) {
+            response = "I'm here to help! You can ask me about the time, date, jokes, or even to tell you a fact.";
+        } else if (lowerMessage.includes('voice')) {
+            voiceRepliesEnabled = !voiceRepliesEnabled;
+            response = voiceRepliesEnabled ? 'Voice replies enabled!' : 'Voice replies disabled!';
+        } else {
+            response = "I'm sorry, I didn't understand that. Could you please rephrase?";
+        }
+
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        addMessage(response, 'bot', time);
+        saveChatHistory(response, 'bot', time);
+
+        if (voiceRepliesEnabled) {
+            speak(response);
+        }
+    }
+
+    // Speak the response
+    function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // Send message
     function sendMessage() {
         const message = userInput.value.trim();
-        if (message === '') return;
-
-        addMessage(message, 'user');
-        userInput.value = '';
-        handleBotResponse(message);
+        if (message) {
+            addMessage(message, 'user');
+            saveChatHistory(message, 'user');
+            userInput.value = '';
+            typingIndicator.style.display = 'block';
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                handleResponse(message);
+            }, 1000);
+        }
     }
 
-    // Handle bot responses
-    function handleBotResponse(message) {
-        typingIndicator.style.display = 'block';
+    // Handle Enter key press in input field
+    userInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
 
-        setTimeout(() => {
-            typingIndicator.style.display = 'none';
-
-            let response = '';
-
-            if (/^(hello|hi|hey)$/i.test(message)) {
-                response = 'Hello! How can I assist you today?';
-            } else if (/^(my name is|i am|i'm) (\w+)$/i.test(message)) {
-                userName = message.match(/^(my name is|i am|i'm) (\w+)$/i)[2];
-                response = `Nice to meet you, ${userName}! How can I help you today?`;
-            } else if (/^(yes|no)$/i.test(message) && voiceRepliesEnabled) {
-                response = 'Great! You can now use voice commands.';
-            } else {
-                response = `You said: "${message}"`;
-            }
-
-            addMessage(response, 'bot');
-
-            if (voiceRepliesEnabled) {
-                speak(response);
-            }
-        }, 1000);
-    }
-
-    // Voice recognition setup
-    if ('webkitSpeechRecognition' in window) {
+    // Initialize voice recognition
+    function initVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window)) {
+            console.log('Speech recognition not supported.');
+            return;
+        }
         recognition = new webkitSpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
+        recognition.lang = 'en-US';
 
         recognition.onstart = () => {
             recognizing = true;
@@ -359,56 +395,21 @@
             userInput.value = transcript;
             sendMessage();
         };
-    } else {
-        console.log('Speech recognition not supported in this browser.');
     }
 
-    // Start voice recognition
+    initVoiceRecognition();
+
+    // Handle voice button click
     voiceButton.addEventListener('click', () => {
         if (recognizing) {
             recognition.stop();
-            return;
-        }
-        recognition.start();
-    });
-
-    // Send message on button click or enter key press
-    sendButton.addEventListener('click', sendMessage);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            sendMessage();
+        } else {
+            recognition.start();
         }
     });
 
-    // Emoji button click (You can extend this by opening an emoji picker)
-    emojiButton.addEventListener('click', () => {
-        userInput.value += '😊'; // Simple example of adding an emoji
-        userInput.focus();
-    });
-
-    // File button click
-    fileButton.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    // File input change event
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const message = `You uploaded: ${file.name}`;
-            addMessage(message, 'user');
-            handleBotResponse(message);
-        }
-    });
-
-    // Speak text using Web Speech API
-    function speak(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        speechSynthesis.speak(utterance);
-    }
-
+    // Load chat history on page load
     loadChatHistory();
 </script>
-
 </body>
 </html>
