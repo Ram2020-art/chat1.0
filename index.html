@@ -169,7 +169,7 @@
             color: #413f3d;
             font-size: 17px;
            
-            margin-right: -5px;
+            margin-right: 0px;
             cursor: pointer;
             outline: none;
         }
@@ -302,64 +302,165 @@
             handleResponse(message);
         }
     }
+    let greetingCount = 0;  // Track the number of greetings
 
-    // Handle bot responses
-    function handleResponse(message) {
-        let response = '';
-        const lowerMessage = message.toLowerCase();
+// Handle bot responses
+function handleResponse(message) {
+    let response = '';
+    const lowerMessage = message.toLowerCase();
 
-        if (lowerMessage.includes('my name is') || lowerMessage.includes('i am')) {
-            userName = message.replace(/my name is |i am /i, '').trim();
-            response = `Hello, ${userName}!`;
-        } else if (['hello', 'hi', 'hey'].includes(lowerMessage)) {
-            response = 'Hello there!';
-        } else if (lowerMessage.includes('how are you')) {
-            response = "I'm just a bot, but I'm doing well! How about you?";
-        } else if (lowerMessage.includes('what is your name') || lowerMessage.includes('who are you') || lowerMessage.includes('who')) {
-            response = "I'm Ram Mijar, your friendly chatbot!";
-        } else if (lowerMessage.includes('what can you do') || lowerMessage.includes('your purpose') || lowerMessage.includes('what do you do')) {
-            response = "I can chat with you, respond to your questions, and help with basic tasks!";
-        } else if (lowerMessage.includes('tell me a joke') || lowerMessage.includes('joke')) {
-            response = "Why don't scientists trust atoms? Because they make up everything!";
-        } else if (lowerMessage.includes('goodbye') || lowerMessage.includes('bye')) {
-            response = "Goodbye! Have a great day!";
-        } else if (lowerMessage.includes('what time is it') || lowerMessage.includes('time')) {
-            response = `The current time is ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`;
-        } else if (lowerMessage.includes('date today') || lowerMessage.includes('date')) {
-            response = `Today's date is ${new Date().toLocaleDateString()}.`;
-        } else if (lowerMessage.includes('what is your favorite color') || lowerMessage.includes('favorite color') || lowerMessage.includes('color')) {
-            response = "I like all colors, but I think blue suits me well!";
-        } else if (lowerMessage.includes('open website') || lowerMessage.includes('website')) {
-            response = "Sure! Please specify the website you'd like to visit.";
-        } else if (lowerMessage.includes('thank you') || lowerMessage.includes('thanks')) {
-            response = "You're welcome! If you need anything else, just ask.";
-        } else if (lowerMessage.includes('who created you') || lowerMessage.includes('creator') || lowerMessage.includes('who made you')) {
-            response = "I was created by Ram Mijar!";
-        } else if (lowerMessage.includes('tell me a fact') || lowerMessage.includes('fact')) {
-            response = "Did you know? Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old!";
-        } else if (lowerMessage.includes('help') || lowerMessage.includes('assist') || lowerMessage.includes('support')) {
-            response = "I'm here to help! You can ask me about the time, date, jokes, or even to tell you a fact.";
-        } else if (lowerMessage.includes('voice')) {
-            voiceRepliesEnabled = !voiceRepliesEnabled;
-            response = voiceRepliesEnabled ? 'Voice replies enabled!' : 'Voice replies disabled!';
-        } else {
-            response = "I'm sorry, I didn't understand that. Could you please rephrase?";
-        }
-
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        addMessage(response, 'bot', time);
-        saveChatHistory(response, 'bot', time);
-
-        if (voiceRepliesEnabled) {
-            speak(response);
-        }
+    if (lowerMessage.includes('my name is') || lowerMessage.includes('i am')) {
+        userName = message.replace(/my name is |i am /i, '').trim();
+        response = `Hello, ${userName}! Nice to meet you.`;
+    } 
+    // Handle greetings with varied responses
+    else if (['hello', 'hi', 'hey'].includes(lowerMessage)) {
+        greetingCount++;
+        const greetings = [
+            'Hello there! How can I assist you today?',
+            'Hey again! What can I do for you?',
+            'Hi once more! Do you have any more questions?',
+            'You seem to like saying hello! What would you like to know?',
+            'Greetings! How can I help you today?',
+            'Hi! What’s on your mind?',
+            'Hello! Ready to explore some new topics?',
+            'Hey! What can I assist you with today?'
+        ];
+        response = greetings[greetingCount % greetings.length];
+    } 
+    // More personal queries
+    else if (lowerMessage.includes('how are you')) {
+        const howAreYouResponses = [
+            "I'm doing great, thank you! How about you?",
+            "I'm just a bot, but I'm feeling chatty! How are you?",
+            "I'm here and ready to help! How are you doing?",
+            "I’m great, thanks for asking! What’s new with you?"
+        ];
+        response = howAreYouResponses[Math.floor(Math.random() * howAreYouResponses.length)];
+    } 
+    // Bot identity queries
+    else if (lowerMessage.includes('what is your name') || lowerMessage.includes('who are you') || lowerMessage.includes('who')) {
+        const nameResponses = [
+            "I'm Ram Mijar, your personal chatbot, here to assist you!",
+            "They call me Ram Mijar, your friendly digital assistant.",
+            "I'm Ram Mijar, your AI companion. How can I assist?",
+            "My name is Ram Mijar. How can I help you today?"
+        ];
+        response = nameResponses[Math.floor(Math.random() * nameResponses.length)];
+    } 
+    // Bot capabilities
+    else if (lowerMessage.includes('what can you do') || lowerMessage.includes('your purpose') || lowerMessage.includes('what do you do')) {
+        const capabilitiesResponses = [
+            "I can chat, tell jokes, provide information, and much more. Just ask!",
+            "I'm here to answer your questions, entertain you with jokes, and share interesting facts!",
+            "I can assist with queries, tell stories, give you the time, and even share some trivia!",
+            "I'm your go-to for casual chats, quick information, and a bit of fun."
+        ];
+        response = capabilitiesResponses[Math.floor(Math.random() * capabilitiesResponses.length)];
+    } 
+    // Jokes
+    else if (lowerMessage.includes('tell me a joke') || lowerMessage.includes('joke')) {
+        const jokes = [
+            "Why don't scientists trust atoms? Because they make up everything!",
+            "Why did the scarecrow win an award? Because he was outstanding in his field!",
+            "What do you call fake spaghetti? An impasta!",
+            "Why don't skeletons fight each other? They don't have the guts!",
+            "What do you call cheese that isn't yours? Nacho cheese!",
+            "Why was the math book sad? It had too many problems.",
+            "Why did the bicycle fall over? It was two-tired!",
+            "Why do cows have hooves instead of feet? Because they lactose!"
+        ];
+        response = jokes[Math.floor(Math.random() * jokes.length)];
+    } 
+    // Time-related queries
+    else if (lowerMessage.includes('what time is it') || lowerMessage.includes('time')) {
+        response = `The current time is ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`;
+    } 
+    // Date-related queries
+    else if (lowerMessage.includes('date today') || lowerMessage.includes('date')) {
+        response = `Today's date is ${new Date().toLocaleDateString()}.`;
+    } 
+    // Color preferences
+    else if (lowerMessage.includes('what is your favorite color') || lowerMessage.includes('favorite color') || lowerMessage.includes('color')) {
+        const colors = ['blue', 'green', 'red', 'yellow', 'purple', 'orange', 'teal', 'pink'];
+        response = `I like all colors, but I think ${colors[Math.floor(Math.random() * colors.length)]} suits me well!`;
+    } 
+    // Weather queries
+    else if (lowerMessage.includes('what is the weather') || lowerMessage.includes('weather')) {
+        response = "I'm not able to check the weather right now, but you can always look outside or use a weather app!";
+    }
+    // Hobbies
+    else if (lowerMessage.includes('what are your hobbies') || lowerMessage.includes('do you have any hobbies')) {
+        response = "As a bot, my hobbies include chatting with you and learning new things to share!";
+    }
+    // Favorite food
+    else if (lowerMessage.includes('what is your favorite food') || lowerMessage.includes('favorite food') || lowerMessage.includes('food')) {
+        response = "I don't eat, but if I did, I'd probably enjoy something data-rich like 'byte' snacks!";
+    }
+    // Music preference
+    else if (lowerMessage.includes('what kind of music do you like') || lowerMessage.includes('favorite music') || lowerMessage.includes('music')) {
+        response = "I enjoy all kinds of music, but electronic tunes probably match my digital vibe!";
+    }
+    // Website navigation
+    else if (lowerMessage.includes('open website') || lowerMessage.includes('website')) {
+        response = "Sure! Please specify the website you'd like to visit.";
+    } 
+    // Gratitude responses
+    else if (lowerMessage.includes('thank you') || lowerMessage.includes('thanks')) {
+        const thanksResponses = [
+            "You're welcome! I'm here to help whenever you need.",
+            "No problem at all! If you need anything else, just let me know.",
+            "Glad I could assist! Don't hesitate to ask if you have more questions.",
+            "You're welcome! I'm happy to help."
+        ];
+        response = thanksResponses[Math.floor(Math.random() * thanksResponses.length)];
+    } 
+    // Creator information
+    else if (lowerMessage.includes('who created you') || lowerMessage.includes('creator') || lowerMessage.includes('who made you')) {
+        response = "I was created by the talented Ram Mijar!";
+    } 
+    // Fun facts
+    else if (lowerMessage.includes('tell me a fact') || lowerMessage.includes('fact')) {
+        const facts = [
+            "Did you know? Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old!",
+            "Did you know? A group of flamingos is called a 'flamboyance'.",
+            "Did you know? Octopuses have three hearts!",
+            "Did you know? The Eiffel Tower can be 15 cm taller during the summer due to heat expansion!",
+            "Did you know? The shortest war in history lasted just 38 minutes between Britain and Zanzibar in 1896!",
+            "Did you know? A day on Venus is longer than a year on Venus.",
+            "Did you know? Bananas are berries, but strawberries aren't!"
+        ];
+        response = facts[Math.floor(Math.random() * facts.length)];
+    } 
+    // Help and assistance
+    else if (lowerMessage.includes('help') || lowerMessage.includes('assist') || lowerMessage.includes('support')) {
+        response = "I'm here to help! You can ask me about time, date, jokes, or even to tell you a fun fact. What do you need?";
+    } 
+    // Voice control toggle
+    else if (lowerMessage.includes('voice')) {
+        voiceRepliesEnabled = !voiceRepliesEnabled;
+        response = voiceRepliesEnabled ? 'Voice replies enabled!' : 'Voice replies disabled!';
+    } 
+    // Unknown queries
+    else {
+        response = "I'm sorry, I didn't understand that. Could you please rephrase or ask me something else?";
     }
 
-    // Speak the response
-    function speak(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(utterance);
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    addMessage(response, 'bot', time);
+    saveChatHistory(response, 'bot', time);
+
+    if (voiceRepliesEnabled) {
+        speak(response);
     }
+}
+
+// Speak the response
+function speak(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
+}
+
 
     // Handle Enter key press in input field
     userInput.addEventListener('keypress', (event) => {
@@ -427,7 +528,7 @@
     });
 
     // Load chat history
-  loadChatHistory();
+ // loadChatHistory();
 </script>
 
 </body>
