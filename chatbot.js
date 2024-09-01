@@ -1,69 +1,97 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const chatContainer = document.createElement('div');
-    chatContainer.id = 'chatContainer';
-    chatContainer.style.position = 'fixed';
-    chatContainer.style.bottom = '0';
-    chatContainer.style.right = '0';
-    chatContainer.style.width = '300px';
-    chatContainer.style.height = '400px';
-    chatContainer.style.border = '1px solid #ccc';
-    chatContainer.style.borderRadius = '8px';
-    chatContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
-    chatContainer.style.backgroundColor = '#fff';
-    chatContainer.style.overflow = 'hidden';
-    chatContainer.style.zIndex = '9999';
-
-    chatContainer.innerHTML = `
-        <div id="chatHeader" style="background-color: #007BFF; color: white; padding: 10px; text-align: center;">
-            Chatbot
-        </div>
-        <div id="chatOutput" style="height: calc(100% - 80px); overflow-y: auto; padding: 10px; border-bottom: 1px solid #ddd;">
-        </div>
-        <input id="chatInput" type="text" style="width: calc(100% - 60px); padding: 10px;" placeholder="Type a message...">
-        <button id="sendButton" style="width: 60px; padding: 10px; background-color: #007BFF; color: white; border: none; cursor: pointer;">
-            Send
-        </button>
-    `;
-    document.body.appendChild(chatContainer);
-
-    const chatInput = document.getElementById('chatInput');
-    const chatOutput = document.getElementById('chatOutput');
-    const sendButton = document.getElementById('sendButton');
-
-    function sendMessage(message, callback) {
-        fetch('https://your-backend-server-url.com/api/chat', { // Replace with your server URL
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: message })
-        })
-        .then(response => response.json())
-        .then(data => {
-            callback(data.reply); // Assumes server responds with { reply: "response text" }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            callback('Sorry, something went wrong.');
+(function() {
+    // Create a script element for the chat application's JavaScript
+    var script = document.createElement('script');
+    script.src = 'https://ram2020-art.github.io/chat1.0/chat.js'; // URL to your chat app's JavaScript file
+    script.onload = function() {
+        // Ensure that your chat app's JavaScript is loaded before initializing the widget
+        initChatWidget();
+    };
+    
+    // Append the script to the body or head
+    document.head.appendChild(script);
+    
+    function initChatWidget() {
+        var container = document.getElementById('chat-widget-container');
+        
+        // Create the chat application HTML structure
+        container.innerHTML = `
+            <div id="chat-container">
+                <div id="chat-header">Chat Widget</div>
+                <div id="chat-messages"></div>
+                <div id="chat-input">
+                    <input type="text" id="message" placeholder="Type a message...">
+                    <button id="send-message">Send</button>
+                </div>
+            </div>
+            <style>
+                #chat-container {
+                    width: 300px;
+                    height: 400px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    display: flex;
+                    flex-direction: column;
+                    background: #fff;
+                }
+                #chat-header {
+                    background: #007bff;
+                    color: #fff;
+                    padding: 10px;
+                    text-align: center;
+                    font-size: 18px;
+                    border-bottom: 1px solid #ccc;
+                }
+                #chat-messages {
+                    flex: 1;
+                    padding: 10px;
+                    overflow-y: auto;
+                }
+                #chat-input {
+                    display: flex;
+                    padding: 10px;
+                    border-top: 1px solid #ccc;
+                }
+                #message {
+                    flex: 1;
+                    padding: 5px;
+                    border: 1px solid #ccc;
+                    border-radius: 3px;
+                }
+                #send-message {
+                    padding: 5px 10px;
+                    margin-left: 5px;
+                    border: none;
+                    border-radius: 3px;
+                    background: #007bff;
+                    color: #fff;
+                    cursor: pointer;
+                }
+            </style>
+        `;
+        
+        // Add event listeners for sending messages
+        document.getElementById('send-message').addEventListener('click', function() {
+            var messageInput = document.getElementById('message');
+            var message = messageInput.value;
+            if (message) {
+                // Add message to chat
+                var messagesContainer = document.getElementById('chat-messages');
+                var messageDiv = document.createElement('div');
+                messageDiv.textContent = message;
+                messagesContainer.appendChild(messageDiv);
+                messageInput.value = '';
+                
+                // Optionally, handle sending the message to a server or bot
+                // sendMessageToServer(message);
+            }
         });
+        
+        // Optionally, handle receiving messages from a server or bot
+        // function receiveMessageFromServer(message) {
+        //     var messagesContainer = document.getElementById('chat-messages');
+        //     var messageDiv = document.createElement('div');
+        //     messageDiv.textContent = message;
+        //     messagesContainer.appendChild(messageDiv);
+        // }
     }
-
-    sendButton.addEventListener('click', function () {
-        const userMessage = chatInput.value.trim();
-        if (userMessage) {
-            chatOutput.innerHTML += `<div class="user-message" style="text-align: right; margin-bottom: 10px;">${userMessage}</div>`;
-            chatInput.value = ''; // Clear input
-
-            sendMessage(userMessage, function (botResponse) {
-                chatOutput.innerHTML += `<div class="bot-response" style="text-align: left; margin-bottom: 10px; color: #007BFF;">${botResponse}</div>`;
-                chatOutput.scrollTop = chatOutput.scrollHeight; // Scroll to bottom
-            });
-        }
-    });
-
-    chatInput.addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') {
-            sendButton.click();
-        }
-    });
-});
+})();
